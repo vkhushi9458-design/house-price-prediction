@@ -18,19 +18,27 @@ income = st.slider("Median Income", 0.0, 15.0, 5.0)
 ocean = st.selectbox("Ocean Proximity", 
                      ["<1H OCEAN", "INLAND", "NEAR OCEAN", "NEAR BAY", "ISLAND"])
 
+
 if st.button("Predict Price"):
     data = pd.DataFrame([{
-        "longitude": longitude,
-        "latitude": latitude,
-        "housing_median_age": age,
-        "total_rooms": rooms,
-        "total_bedrooms": bedrooms,
-        "population": population,
-        "households": households,
-        "median_income": income,
-        "ocean_proximity": ocean
+        "longitude": float(longitude),
+        "latitude": float(latitude),
+        "housing_median_age": int(age),
+        "total_rooms": float(rooms),
+        "total_bedrooms": float(bedrooms),
+        "population": float(population),
+        "households": float(households),
+        "median_income": float(income),
+        "ocean_proximity": str(ocean)
     }])
 
-    prediction = model.predict(data)
+    # ✅ Ensure same column order as training
+    data = data[model.feature_names_in_]
 
-    st.success(f"💰 Predicted Price: ${round(prediction[0], 2)}")
+    prediction = model.predict(data)[0]
+
+    # ✅ Extra safety fix (your question)
+    if not np.isfinite(prediction):
+        st.error("Prediction failed. Try different values.")
+    else:
+        st.success(f"💰 Predicted Price: ${round(prediction, 2)}")
