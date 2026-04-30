@@ -3,7 +3,8 @@ import joblib
 import numpy as np
 import pandas as pd
 
-model = joblib.load("house_price_model.pkl")
+preprocess = joblib.load("preprocess.pkl")
+model = joblib.load("model.pkl")
 
 st.title("🏠 House Price Prediction")
 
@@ -32,13 +33,14 @@ if st.button("Predict Price"):
         "ocean_proximity": str(ocean)
     }])
 
-    try:
-        prediction = model.predict(data)[0]
+    # 🔥 Apply preprocessing FIRST
+    data_processed = preprocess.transform(data)
 
-        if not np.isfinite(prediction):
-            st.error("Prediction failed. Try different values.")
-        else:
-            st.success(f"💰 Predicted Price: ${round(prediction, 2)}")
+    # 🔥 Then predict
+    prediction = model.predict(data_processed)[0]
 
-    except Exception as e:
-        st.error("⚠️ Model error. Please check input or model compatibility.")
+    # ✅ Safety check
+    if not np.isfinite(prediction):
+        st.error("Prediction failed. Try different values.")
+    else:
+        st.success(f"💰 Predicted Price: ${round(prediction, 2)}")
