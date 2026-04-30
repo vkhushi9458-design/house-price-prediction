@@ -32,13 +32,13 @@ if st.button("Predict Price"):
         "ocean_proximity": str(ocean)
     }])
 
-    # ✅ Ensure same column order as training
-    data = data[model.feature_names_in_]
+    try:
+        prediction = model.predict(data)[0]
 
-    prediction = model.predict(data)[0]
+        if not np.isfinite(prediction):
+            st.error("Prediction failed. Try different values.")
+        else:
+            st.success(f"💰 Predicted Price: ${round(prediction, 2)}")
 
-    # ✅ Extra safety fix (your question)
-    if not np.isfinite(prediction):
-        st.error("Prediction failed. Try different values.")
-    else:
-        st.success(f"💰 Predicted Price: ${round(prediction, 2)}")
+    except Exception as e:
+        st.error("⚠️ Model error. Please check input or model compatibility.")
